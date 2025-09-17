@@ -1,0 +1,48 @@
+---
+interface Feature {
+    name: string;
+    url: string;
+}
+
+interface Props {
+    url: string;
+    title: string;
+    description: string;
+    datePublished: Date;
+    features?: Feature[];
+}
+
+const { url, title, description, datePublished, features } = Astro.props;
+---
+
+<div class="post">
+    {
+        datePublished && (
+            <time class="date">
+                {datePublished.toDateString()}
+            </time>
+        )
+    }
+    <h3 class="title">
+        <a href={url}>{title}</a>
+    </h3>
+    <span class="description">{description}</span>
+    {
+        features && (
+            <span class="features">
+                Featured on{""}
+                {features.map(({name, url}, i) => [
+                    i > 0 && ", ",
+                    <a href={url}>{name}</a>
+                ])}
+            </span>
+        )
+    }
+</div>
+
+<style>
+    .post {
+        display: flex;
+        flex-direction: column;
+    }
+</style>

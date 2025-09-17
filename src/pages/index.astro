@@ -1,13 +1,29 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Center from '../components/Center.astro';
+import rssParser from 'rss-parser';
+import { getCollection } from "astro:content";
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Center from "../components/Center.astro";
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <BaseLayout>
 	<Center>
-		<h1>Hiya!</h1>
-		<p>Welcome! I mainly go by Froppii or Darlene, with a bunch of other names you might know me by. </p>
+		<section>
+			<p>
+				Welcome my random corner of the internet! I mainly go by Froppii or
+				Darlene, with a bunch of other names you might know me by. Im
+				interested in coding, art, music, aviation, and many more! But generally just making stuff.
+			</p>
+			<p>
+				This site is used as a place where I can dump my thoughts and
+				interests freely :3, you may find projects im working on or updates
+				in my blog!
+			</p>
+		</section>
+		<section>
+
+		</section>
 	</Center>
 </BaseLayout>
