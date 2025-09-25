@@ -3,20 +3,29 @@ import rssParser from 'rss-parser';
 import { getCollection } from 'astro:content';
 import Center from '../components/Center.astro';
 
+import PostCard from '../components/PostCard.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+type Post = {
+    title: string;
+    description?: string;
+    link: string;
+    date: Date;
+    source: 'astro' | 'substack';
+}
 
 const parser = new rssParser();
 
-const feed = await parser.parseURL('');
-const substackPosts =  feed.items.map(post =>  ({
+const feed = await parser.parseURL('https://froppii.substack.com/feed');
+const substackPosts: Post[] =  feed.items.map((post: any) =>  ({
     title: post.title,
     description: post.contentSnippet,
     link: post.link,
-    date: new Date(post.pubDate),
+    date: post.pubDate ? new Date(post.pubDate) : new Date(),
     source: 'substack'
 }));
 
-const astroPosts = await getCollection('blog').map(post => ({
+const astroPosts: Post[] = (await getCollection('blog')).map((post: any) => ({
     title: post.data.title,
     description: post.data.description,
     link: `/blog/${post.slug}`,
@@ -24,7 +33,7 @@ const astroPosts = await getCollection('blog').map(post => ({
     source: 'astro'
 }));
 
-const allPosts = [...astroPosts, ...substackPosts].sort((a, b) => b.date - a.date); 
+const allPosts: Post[] = [...astroPosts, ...substackPosts].sort((a, b) => b.date.getTime() - a.date.getTime()); 
 ---
 
 <BaseLayout>
@@ -35,8 +44,11 @@ const allPosts = [...astroPosts, ...substackPosts].sort((a, b) => b.date - a.dat
             {allPosts.map(post => (
                 <article class="post">
                     <h2>
-                        <a href={post.link} target={post.source}></a>
+                        <a href={post.link} target={post.source}>
+                            {post.title}
+                        </a>
                     </h2>
+                    {post.description && <p>{post.description}</p>}
                 </article>
             ))}
         </section>
