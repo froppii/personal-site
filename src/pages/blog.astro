@@ -1,56 +1,86 @@
 ---
 import rssParser from 'rss-parser';
-import { getCollection } from 'astro:content';
 import Center from '../components/Center.astro';
-
 import PostCard from '../components/PostCard.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
 
-type Post = {
-    title: string;
-    description?: string;
-    link: string;
-    date: Date;
-    source: 'astro' | 'substack';
+const astroPosts = await getCollection('blog');
+astroPosts.sort(
+    (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+const parser = new rssParser({
+    customFields: {
+        item: ['content:encoded']
+    },
+});
+
+async function getSubstackPosts() {
+    try {
+        const res = await fetch('https://froppii.substack.com/feed', {
+            headers: {
+                'User-Agent': 
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+                Accept: 'application/rss+xml, application/xml',  
+            },
+        });
+
+        const xml = await res.text();
+        const feed = await parser.parseString(xml);
+
+        return feed.items.map((post: any) => ({
+            title: post.title,
+            url: post.link,
+            image: post.enclosure?.url ?? '/default-substack.png',
+            description: post.contentSnipper ?? '',
+            datePublished: post.pubDate ? new Date(post.pubDate) : new Date(),
+            source: 'substack',
+        }));
+    } catch (err) {
+        console.error('substack fetch error:', err);
+        return [];
+    }
 }
 
-const parser = new rssParser();
+const substackPosts = await getSubstackPosts();
 
-const feed = await parser.parseURL('https://froppii.substack.com/feed');
-const substackPosts: Post[] =  feed.items.map((post: any) =>  ({
-    title: post.title,
-    description: post.contentSnippet,
-    link: post.link,
-    date: post.pubDate ? new Date(post.pubDate) : new Date(),
-    source: 'substack'
-}));
-
-const astroPosts: Post[] = (await getCollection('blog')).map((post: any) => ({
+const formattedAstroPosts = astroPosts.map((post) => ({
     title: post.data.title,
+    url: `/blog/${post.slug}`,
+    image: post.data.image?.url ?? '/default-astro.png',
     description: post.data.description,
-    link: `/blog/${post.slug}`,
-    date: post.data.date,
-    source: 'astro'
+    datePublished: new Date(post.data.pubDate),
+    source: 'astro',
 }));
 
-const allPosts: Post[] = [...astroPosts, ...substackPosts].sort((a, b) => b.date.getTime() - a.date.getTime()); 
+const allPosts = [...formattedAstroPosts, ...substackPosts].sort(
+    (a, b) => b.datePublished.getTime() - a.datePublished.getTime()
+);
 ---
 
-<BaseLayout>
+<BaseLayout title="blog">
     <Center>
         <h1>Blog</h1>
         <p>hey there!</p>
-        <section>
-            {allPosts.map(post => (
-                <article class="post">
-                    <h2>
-                        <a href={post.link} target={post.source}>
-                            {post.title}
-                        </a>
-                    </h2>
-                    {post.description && <p>{post.description}</p>}
-                </article>
+        <section class='posts'>
+            {allPosts.map((post) => (
+                <PostCard
+                    title={post.title}
+                    url={post.url}
+                    description={post.description}
+                    datePublished={post.datePublished}
+                />
             ))}
         </section>
     </Center>
 </BaseLayout>
+
+<style>
+    .posts {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 1.rem;
+    }
+</style>

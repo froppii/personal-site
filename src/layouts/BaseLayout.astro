@@ -3,12 +3,14 @@ import Header from '../components/Header/Header.astro';
 import Center from '../components/Center.astro';
 
 import '../styles/global.css'; 
+
+const { title } = Astro.props;
 ---
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
-        <title><slot name="title" /></title>
+        <title>{title} - froppii</title>
     </head>
     <body>
         <Header />
