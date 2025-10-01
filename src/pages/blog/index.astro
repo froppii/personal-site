@@ -1,0 +1,54 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostCard from "../../components/PostCard.astro";
+
+const posts = await getCollection("blog");
+
+posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+
+<BaseLayout title="blog">
+  <h1 class="blog-title">blog</h1>
+  <p class="blog-desc">thoughts, ideas, rambles, all in one place!</p>
+  <div class="post-grid">
+    {posts.map((post) => (
+      <PostCard
+        name={post.data.title}
+        url={`/blog/${post.slug}/`}
+        description={post.data.description ?? ""}
+        date={post.data.pubDate}
+        image={post.data.image}
+      />
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .blog-title {
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--text-color, #111);
+  }
+
+  .blog-desc {
+    font-size: 16px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+  }
+
+  .post-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  :root {
+    --text-color: #111;
+  }
+
+  body.dark {
+    --text-color: #eee;
+    background: #111;
+  }
+</style>

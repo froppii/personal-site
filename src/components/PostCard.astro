@@ -1,48 +1,94 @@
 ---
-interface Feature {
-    name: string;
-    url: string;
-}
-
 interface Props {
-    url: string;
-    title: string;
-    description: string;
-    datePublished: Date;
-    features?: Feature[];
+  name: string;
+  url: string;
+  image?: string;
+  description: string;
+  date: Date;
 }
 
-const { url, title, description, datePublished, features } = Astro.props;
+const { name, url, image, description, date } = Astro.props;
+
+const formattedDate =
+  date instanceof Date
+    ? date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : date;
 ---
 
-<div class="post">
-    {
-        datePublished && (
-            <time class="date">
-                {datePublished.toDateString()}
-            </time>
-        )
-    }
-    <h3 class="title">
-        <a href={url}>{title}</a>
-    </h3>
-    <span class="description">{description}</span>
-    {
-        features && (
-            <span class="features">
-                Featured on{""}
-                {features.map(({name, url}, i) => [
-                    i > 0 && ", ",
-                    <a href={url}>{name}</a>
-                ])}
-            </span>
-        )
-    }
-</div>
+<article class="post-card">
+  {image && <img src={image} alt={description} class="post-image" />}
+  <div class="post-content">
+    <time class="post-date">{formattedDate}</time>
+    <a href={url} class="post-title">{name}</a>
+    <p class="post-desc">{description}</p>
+  </div>
+</article>
 
 <style>
-    .post {
-        display: flex;
-        flex-direction: column;
-    }
+  .post-card {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .post-image {
+    width: 25%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .post-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #222;
+    text-decoration: none;
+  }
+
+  .post-title:hover {
+    text-decoration: underline;
+  }
+
+  .post-desc {
+    margin-top: 6px;
+    margin-bottom: 0px;
+    color: #444;
+  }
+
+  .post-date {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 6px;
+  }
+
+  body.dark .post-card {
+    background: #1a1a1a;
+    border-color: #333;
+  }
+
+  body.dark .post-title {
+    color: #eee;
+  }
+
+  body.dark .post-desc {
+    color: #bbb;
+  }
+
+  body.dark .post-date {
+    color: #aaa;
+  }
 </style>

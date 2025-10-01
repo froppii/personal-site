@@ -1,0 +1,48 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container">
+    <p class="footer-title">join the newsletter!</p>
+
+    <iframe 
+      src="https://froppii.substack.com/embed" 
+      width="100%" 
+      height="200" 
+      style="border:1px solid #EEE; background:white;" 
+      frameborder="0" 
+      scrolling="no">
+    </iframe>
+
+    <p class="footer-text">by froppii. made with astro · © {year}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: #f8f8f8;
+    padding: 2rem;
+    margin-top: 3rem;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    justify-content: center;
+  }
+  .container {
+    max-width: 600px;
+    margin: 0;
+  }
+  .footer-title {
+    font-size: 18px;
+    margin-bottom: 1rem;
+  }
+  .footer-text {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 1.5rem;
+  }
+  iframe {
+    border-radius: 8px;
+    max-width: 100%;
+  }
+</style>
